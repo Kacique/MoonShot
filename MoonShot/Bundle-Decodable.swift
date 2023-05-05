@@ -8,7 +8,10 @@
 import Foundation
 
 extension Bundle{
-    func decode(_ file: String) -> [String: Astronaut]{
+    // Before we had [String: Astronaut] meaning thats what it was returning
+    // Now we can place T, meaning we can return any Type not just Astronaut types
+    // This is called a Generic
+    func decode<T: Codable>(_ file: String) -> T {
         guard let url = self.url(forResource: file, withExtension: nil) else{
             fatalError("Failed to locate \(file) in bundle.")
         }
@@ -18,8 +21,12 @@ extension Bundle{
         }
         
         let decoder = JSONDecoder()
+        //Decodes dates because they are strings
+        let formatter = DateFormatter()
+        formatter.dateFormat = "y-MM-dd"
+        decoder.dateDecodingStrategy = .formatted(formatter)
         
-        guard let loaded = try? decoder.decode([String: Astronaut].self, from: data) else{
+        guard let loaded = try? decoder.decode(T.self, from: data) else{
             fatalError("Failed to decode \(file) from bundle.")
         }
         
