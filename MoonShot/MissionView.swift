@@ -25,6 +25,9 @@ struct MissionView: View{
                         .scaledToFit()
                         .frame(maxWidth: geometry.size.width * 0.6)
                         .padding(.top)
+                    Text(mission.formattedLaunchDate)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.5))
                     //Divider
                     Rectangle()
                         .frame(height: 2)

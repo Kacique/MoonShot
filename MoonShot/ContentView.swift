@@ -10,15 +10,19 @@ import SwiftUI
 struct ContentView: View {
     
     // These are generics?
-    let astronauts: [String: Astronaut] = Bundle.main.decode("astronauts.json")
-    let missions: [Mission] = Bundle.main.decode("missions.json")
+   
+    @State var showList: Bool
     
-    let columns = [
-        GridItem(.adaptive(minimum: 150))
-    ]
     
-    var body: some View {
-        NavigationView{
+    struct GridView: View {
+        // Add your properties here
+        let astronauts: [String: Astronaut] = Bundle.main.decode("astronauts.json")
+        let missions: [Mission] = Bundle.main.decode("missions.json")
+        
+        let columns = [
+            GridItem(.adaptive(minimum: 150))
+        ]
+        var body: some View {
             ScrollView{
                 LazyVGrid(columns: columns){
                     ForEach(missions){mission in
@@ -55,14 +59,74 @@ struct ContentView: View {
                 }
                 .padding([.horizontal, .bottom])
             }
-            .navigationTitle("Moonshot")
-            .background(.darkBackground)
-            .preferredColorScheme(.dark)
         }
     }
-}
+    
+    struct ListView: View {
+        let astronauts: [String: Astronaut] = Bundle.main.decode("astronauts.json")
+        let missions: [Mission] = Bundle.main.decode("missions.json")
+        var body: some View {
+            List{
+                ForEach(missions, id: \.id) { mission in
+                    NavigationLink{
+                        MissionView(mission: mission, astronauts: astronauts)
+                    }label: {
+                        VStack{
+                            HStack{
+                                Image(mission.image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 60, height: 60)
+                                    .padding()
+                                
+                                Text(mission.displayName)
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                Text(mission.formattedLaunchDate)
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+                }
+                
+            }
+            .listStyle(.plain)
+            .listRowBackground(Color.darkBackground)
+        }
+        
+    }
+    
+    var body: some View {
+        NavigationView{
+            Group {
+                if showList {
+                    ListView()
+                } else {
+                    GridView()
+                }
+            }
+            .navigationTitle("Moonshot")
+            .toolbar{
+                ToolbarItem(placement: .navigationBarTrailing){
+                    Button(action: {
+                        showList.toggle()
+                    }){
+                        Image(systemName: "list.bullet.circle")
+                            .font(.system(size: 24))
+                    }
+                }
+            }
+            .background(.darkBackground)
+            .preferredColorScheme(.dark)
+            }
+            
+        }
+    }
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(showList: true)
     }
 }
